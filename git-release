@@ -1,0 +1,28 @@
+#!/bin/sh
+masterBranch="develop"
+
+((!$#)) && echo No release name, command ignored! && echo "  - git release <version>" && exit 1
+
+if [[ "$1" = "--h" ]] ; then
+   echo "Creates a release branch at the latest commit on $masterBranch and checks it out.";
+   echo "  - git release <version>";
+   exit 1;
+fi
+
+numericRegex="^[.0-9]+$"
+if ! [[ "$1" =~ $numericRegex ]] ; then
+   echo error: Not a numberic version
+   exit 1
+fi
+
+echo Starting release $1
+
+head=$masterBranch
+if [ "$2" = "" ]; then
+	echo branching from $masterBranch
+else
+	echo branching from $2
+	head=$2
+fi
+
+git checkout -b release/$1 $head

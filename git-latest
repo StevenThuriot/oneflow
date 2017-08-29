@@ -1,0 +1,9 @@
+#!/bin/sh
+masterBranch="develop"
+
+if [[ "$1" = "--h" ]] ; then
+   echo "Checks out latest commit on $masterBranch.";
+   exit 1;
+fi
+
+git checkout $masterBranch

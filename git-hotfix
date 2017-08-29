@@ -1,0 +1,30 @@
+#!/bin/sh
+masterBranch="develop"
+
+((!$#)) && echo No hotfix name, command ignored! && echo "  - git hotfix <version>" && exit 1
+
+if [[ "$1" = "--h" ]] ; then
+   echo "Creates a hotfix branch at the latest available tag and checks it out.";
+   echo "  - git hotfix <version>";
+   exit 1;
+fi
+
+
+numericRegex="^[.0-9]+$"
+if ! [[ "$1" =~ $numericRegex ]] ; then
+   echo error: Not a numberic version
+   exit 1
+fi
+
+echo Starting hotfix $1
+
+head=$masterBranch
+if [ "$2" = "" ]; then
+	head=$(git describe --tags `git rev-list --tags --max-count=1`)
+	echo branching from latest tag: $head
+else
+	head=$2
+	echo branching from requested cs: $head
+fi
+
+git checkout -b hotfix/$1 $head

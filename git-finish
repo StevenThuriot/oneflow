@@ -1,0 +1,53 @@
+#!/bin/sh
+masterBranch="develop"
+
+if [[ "$1" = "--h" ]] ; then
+   echo "Finishing up feature branches: ";
+   echo "  - git finish";
+   echo ""
+   echo "Finishing up release and hotfix branches: ";
+   echo "  - git finish <name>";
+   echo	"    where name is optional";
+   echo ""
+   echo "This command will rebase feature branches, tag release and hotfix branches"
+   echo "and merge them back into $masterBranch."
+   echo "Afterwards, the feature/release/hotfix branch will be cleaned up"
+   exit 1;
+fi
+
+if ! [ -d .git ] ; then
+	echo "Current directory is not a git folder."
+	exit 1;
+fi
+
+branch=$(git rev-parse --abbrev-ref HEAD)
+shortBranch=$(echo $branch| cut -d'/' -f 2)
+
+if [[ $branch =~ ^feature.* ]]; then
+    echo Finishing up feature branch
+	git rebase -i $masterBranch
+elif [[ $branch =~ ^(release|hotfix).* ]]; then
+    echo Tagging release branch
+	
+	if [ "$1" = "" ]; then
+		git tag V$shortBranch
+	else
+		git tag V$shortBranch-$1
+	fi	
+else 
+	echo "Currently not on a feature/release/hotfix branch";
+	exit 1;
+fi
+
+git checkout $masterBranch
+
+if [[ $branch =~ ^feature.* ]]; then
+	git merge --no-ff $branch
+	git push origin $masterBranch
+else
+	git merge $branch
+	git push --tags origin $masterBranch
+fi
+
+git branch -d $branch
+git push origin :$branch

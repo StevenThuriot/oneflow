@@ -1,0 +1,13 @@
+#!/bin/sh
+masterBranch="develop"
+
+((!$#)) && echo No feature name, command ignored! && echo "  - git feature <name>" && exit 1
+
+if [[ "$1" = "--h" ]] ; then
+   echo "Creates a feature branch at the latest commit on $masterBranch and checks it out.";
+   echo "  - git feature <name>";
+   exit 1;
+fi
+
+echo Starting feature $1
+git checkout -b feature/$1 $masterBranch

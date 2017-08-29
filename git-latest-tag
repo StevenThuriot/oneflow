@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [[ "$1" = "--h" ]] ; then
+   echo "Searches for and checks out the latest tag.";
+   exit 1;
+fi
+
+git fetch --tags
+latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
+git checkout $latestTag
