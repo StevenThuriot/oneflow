@@ -1,8 +1,9 @@
 #!/bin/sh
-masterBranch="develop"
+set -e
+masterBranch="master"
 
 if [[ "$1" = "--h" ]] ; then
-   echo "Finishing up feature branches: ";
+   echo "Finishing up feature and issue branches: ";
    echo "  - git finish";
    echo ""
    echo "Finishing up release and hotfix branches: ";
@@ -16,16 +17,18 @@ if [[ "$1" = "--h" ]] ; then
 fi
 
 if ! [ -d .git ] ; then
-	echo "Current directory is not a git folder."
-	exit 1;
+	if ! [ $(git rev-parse --is-inside-work-tree &>/dev/null; echo "${?}") == '0' ] ; then
+		echo "Current directory is not a git folder."
+		exit 1;
+	fi
 fi
 
 branch=$(git rev-parse --abbrev-ref HEAD)
 shortBranch=$(echo $branch| cut -d'/' -f 2)
 
-if [[ $branch =~ ^feature.* ]]; then
-    echo Finishing up feature branch
-	git rebase -i $masterBranch
+if [[ $branch =~ ^(feature|issue).* ]]; then
+    echo Rebasing branch using $masterBranch
+	git rebase -i $masterBranch		
 elif [[ $branch =~ ^(release|hotfix).* ]]; then
     echo Tagging release branch
 	
@@ -35,19 +38,55 @@ elif [[ $branch =~ ^(release|hotfix).* ]]; then
 		git tag V$shortBranch-$1
 	fi	
 else 
-	echo "Currently not on a feature/release/hotfix branch";
+	echo "Currently not on a feature/issue/release/hotfix branch";
 	exit 1;
 fi
 
 git checkout $masterBranch
 
-if [[ $branch =~ ^feature.* ]]; then
-	git merge --no-ff $branch
+if [[ $branch =~ ^feature.* ]]; then	
+	git push origin $branch
+	originUrl=$(git config --get remote.origin.url)
+	
+	vsoRegex=".visualstudio.com"
+	if [[ "$originUrl" =~ $vsoRegex ]] ; then
+	   originUrl="$originUrl/pullrequestcreate?targetRef=master&sourceRef=$branch"
+	fi	
+
+	case $( uname -s ) in
+	  Darwin)  open='open';;
+	  MINGW*)  open='start';;
+	  MSYS*)   open='start';;
+	  CYGWIN*) open='cygstart';;
+	  *)       open='xdg-open';;
+	esac
+
+	# Allow printing the url if BROWSER=echo
+	if [[ $BROWSER != "echo" ]]; then
+	  exec &>/dev/null
+	fi
+
+
+	# open it in a browser
+	${BROWSER:-$open} "$originUrl"
+	
+	echo "Cleaning up local branch"
+	git branch -D $branch
+	exit 0;
+elif [[ $branch =~ ^issue.* ]]; then
+	echo "Merging to $masterBranch"
+	git merge --no-ff $branch -m "Resolving issue #shortBranch"
 	git push origin $masterBranch
 else
+	echo "Merging to $masterBranch"
 	git merge $branch
 	git push --tags origin $masterBranch
 fi
 
-git branch -d $branch
-git push origin :$branch
+echo "Cleaning up local branch"
+git branch -D $branch
+
+if [[ "$(git branch -a | egrep "remotes/origin/blub" | wc -l)" = "1" ]]; then
+	echo "Cleaning up remote branch"
+	git push origin :$branch
+fi

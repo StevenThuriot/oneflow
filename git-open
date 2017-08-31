@@ -1,0 +1,33 @@
+#!/bin/sh
+set -e
+
+if [[ "$1" = "--h" ]] ; then
+   echo "Opens the current git repo on the web.";
+   exit 1;
+fi
+
+if ! [ -d .git ] ; then
+	if ! [ $(git rev-parse --is-inside-work-tree &>/dev/null; echo "${?}") == '0' ] ; then
+		echo "Current directory is not a git folder."
+		exit 1;
+	fi
+fi
+
+originUrl=$(git config --get remote.origin.url)
+
+case $( uname -s ) in
+  Darwin)  open='open';;
+  MINGW*)  open='start';;
+  MSYS*)   open='start';;
+  CYGWIN*) open='cygstart';;
+  *)       open='xdg-open';;
+esac
+
+# Allow printing the url if BROWSER=echo
+if [[ $BROWSER != "echo" ]]; then
+  exec &>/dev/null
+fi
+
+
+# open it in a browser
+${BROWSER:-$open} "$originUrl"

@@ -1,12 +1,21 @@
 #!/bin/sh
-masterBranch="develop"
+set -e
+masterBranch="master"
 
-((!$#)) && echo No hotfix name, command ignored! && echo "  - git hotfix <version>" && exit 1
+((!$#)) && echo No hotfix name, command ignored! && echo "  - git hotfix <version> <tag>" && exit 1
 
 if [[ "$1" = "--h" ]] ; then
    echo "Creates a hotfix branch at the latest available tag and checks it out.";
-   echo "  - git hotfix <version>";
+   echo "  - git hotfix <version> <tag>";
+   echo "Tag is optional. If not supplied, it will take the latest tag automatically"
    exit 1;
+fi
+
+if ! [ -d .git ] ; then
+	if ! [ $(git rev-parse --is-inside-work-tree &>/dev/null; echo "${?}") == '0' ] ; then
+		echo "Current directory is not a git folder."
+		exit 1;
+	fi
 fi
 
 

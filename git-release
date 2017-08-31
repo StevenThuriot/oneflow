@@ -1,5 +1,6 @@
 #!/bin/sh
-masterBranch="develop"
+set -e
+masterBranch="master"
 
 ((!$#)) && echo No release name, command ignored! && echo "  - git release <version>" && exit 1
 
@@ -9,6 +10,13 @@ if [[ "$1" = "--h" ]] ; then
    exit 1;
 fi
 
+if ! [ -d .git ] ; then
+	if ! [ $(git rev-parse --is-inside-work-tree &>/dev/null; echo "${?}") == '0' ] ; then
+		echo "Current directory is not a git folder."
+		exit 1;
+	fi
+fi
+
 numericRegex="^[.0-9]+$"
 if ! [[ "$1" =~ $numericRegex ]] ; then
    echo error: Not a numberic version
@@ -16,13 +24,4 @@ if ! [[ "$1" =~ $numericRegex ]] ; then
 fi
 
 echo Starting release $1
-
-head=$masterBranch
-if [ "$2" = "" ]; then
-	echo branching from $masterBranch
-else
-	echo branching from $2
-	head=$2
-fi
-
-git checkout -b release/$1 $head
+git checkout -b release/$1 $masterBranch

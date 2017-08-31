@@ -1,8 +1,16 @@
 #!/bin/sh
+set -e
 
 if [[ "$1" = "--h" ]] ; then
    echo "Searches for and checks out the latest tag.";
    exit 1;
+fi
+
+if ! [ -d .git ] ; then
+	if ! [ $(git rev-parse --is-inside-work-tree &>/dev/null; echo "${?}") == '0' ] ; then
+		echo "Current directory is not a git folder."
+		exit 1;
+	fi
 fi
 
 git fetch --tags
