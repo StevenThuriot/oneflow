@@ -2,11 +2,11 @@
 set -e
 masterBranch="master"
 
-((!$#)) && echo No release name, command ignored! && echo "  - git release <version>" && exit 1
+((!$#)) && echo No release name, command ignored! && echo "  - git release <version> <startingPoint>" && exit 1
 
 if [[ "$1" = "--h" ]] ; then
-   echo "Creates a release branch at the latest commit on $masterBranch and checks it out.";
-   echo "  - git release <version>";
+   echo "Creates a release branch at either the latest commit on $masterBranch or when supplied the <startingPoint> and checks it out.";
+   echo "  - git release <version> <startingPoint>";
    exit 1;
 fi
 
@@ -23,5 +23,14 @@ if ! [[ "$1" =~ $numericRegex ]] ; then
    exit 1
 fi
 
+
+head=$masterBranch
+if [ "$2" = "" ]; then
+	echo branching from latest commit on $head
+else
+	head=$2
+	echo branching from requested starting point: $head
+fi
+
 echo Starting release $1
-git checkout -b release/$1 $masterBranch
+git checkout -b release/$1 $head
