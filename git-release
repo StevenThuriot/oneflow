@@ -19,7 +19,7 @@ fi
 
 numericRegex="^[.0-9]+$"
 if ! [[ "$1" =~ $numericRegex ]] ; then
-   echo error: Not a numberic version
+   echo error: Not a numeric version
    exit 1
 fi
 
