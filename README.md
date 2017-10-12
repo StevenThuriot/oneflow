@@ -8,6 +8,7 @@ Add these to a folder that is included in your path variable. You can then call 
 ```
  > git bugfix 
  > git feature
+ > git issue
  > git finish
  > git hotfix
  > git latest
