@@ -15,6 +15,7 @@ Add these to a folder that is included in your path variable. You can then call 
  > git latest-tag
  > git open
  > git release
+ > git oneflow-update
 ```
 You can pass `--h` for a short readme, as follows:
 
