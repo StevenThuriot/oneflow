@@ -1,0 +1,8 @@
+#!/bin/sh
+
+cd "`dirname $0`"
+wget https://github.com/StevenThuriot/oneflow/archive/master.zip --no-check-certificate -O oneflow.zip
+unzip -o oneflow.zip
+rm oneflow.zip
+mv oneflow-master/git* ./ -f
+rm -rf oneflow-master
