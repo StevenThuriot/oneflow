@@ -80,7 +80,7 @@ elif [[ $branch =~ ^issue.* ]]; then
 else
 	echo "Merging to $masterBranch"
 	git merge $branch
-	git push --tags origin $masterBranch
+	git push --follow-tags origin $masterBranch
 fi
 
 echo "Cleaning up local branch"
