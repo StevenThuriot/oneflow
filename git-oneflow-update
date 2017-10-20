@@ -1,5 +1,13 @@
 #!/bin/sh
 
+if [[ "$1" = "--h" ]] ; then
+   echo "Updates the oneflow toolset to the latest version: ";
+   echo "  - git oneflow-update";
+   echo ""
+   echo "This command will retrieve the latest version from the master repository of https://github.com/StevenThuriot/oneflow"
+   exit 1;
+fi
+
 cd "`dirname $0`"
 wget https://github.com/StevenThuriot/oneflow/archive/master.zip --no-check-certificate -O oneflow.zip
 unzip -o oneflow.zip
