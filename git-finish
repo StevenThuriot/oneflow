@@ -26,6 +26,28 @@ fi
 branch=$(git rev-parse --abbrev-ref HEAD)
 shortBranch=$(echo $branch| cut -d'/' -f 2)
 
+cleanup_localbranch () {
+echo "Do you wish to delete the local branch $1?"
+select yn in "Yes" "No"; do
+    case $yn in
+        Yes ) echo "Cleaning up local branch"; git branch -D $1; break;;
+        No ) break;;
+    esac
+done
+}
+
+cleanup_remotebranch () {
+if [[ "$(git branch -a | egrep "remotes/origin/$1" | wc -l)" = "1" ]]; then
+    echo "Do you wish to delete the remote branch remotes/origin/$1?"
+    select yn in "Yes" "No"; do
+        case $yn in
+            Yes ) echo "Cleaning up remote branch"; git push origin :$1; break;;
+            No ) break;;
+        esac
+    done	
+fi
+}
+
 if [[ $branch =~ ^(feature|issue).* ]]; then
     echo Rebasing branch using $masterBranch
 	git rebase -i $masterBranch		
@@ -70,8 +92,7 @@ if [[ $branch =~ ^feature.* ]]; then
 	# open it in a browser
 	${BROWSER:-$open} "$originUrl"
 	
-	echo "Cleaning up local branch"
-	git branch -D $branch
+        cleanup_localbranch $branch
 	exit 0;
 elif [[ $branch =~ ^issue.* ]]; then
 	echo "Merging to $masterBranch"
@@ -83,10 +104,5 @@ else
 	git push --follow-tags origin $masterBranch
 fi
 
-echo "Cleaning up local branch"
-git branch -D $branch
-
-if [[ "$(git branch -a | egrep "remotes/origin/blub" | wc -l)" = "1" ]]; then
-	echo "Cleaning up remote branch"
-	git push origin :$branch
-fi
+cleanup_localbranch $branch
+cleanup_remotebranch $branch
