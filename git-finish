@@ -48,6 +48,41 @@ if [[ "$(git branch -a | egrep "remotes/origin/$1" | wc -l)" = "1" ]]; then
 fi
 }
 
+create_pullrequest () {
+git push origin $1
+originUrl=$(git config --get remote.origin.url)
+
+vsoRegex=".visualstudio.com"
+if [[ "$originUrl" =~ $vsoRegex ]] ; then
+   originUrl="$originUrl/pullrequestcreate?targetRef=master&sourceRef=$1"
+fi	
+
+case $( uname -s ) in
+  Darwin)  open='open';;
+  MINGW*)  open='start';;
+  MSYS*)   open='start';;
+  CYGWIN*) open='cygstart';;
+  *)       open='xdg-open';;
+esac
+
+# Allow printing the url if BROWSER=echo
+if [[ $BROWSER != "echo" ]]; then
+  exec &>/dev/null
+fi
+
+
+# open it in a browser
+${BROWSER:-$open} "$originUrl"
+
+cleanup_localbranch $1
+}
+
+mergetomaster () {
+echo "Merging to $1"
+git merge --no-ff  $2
+git push --follow-tags origin $1
+}
+
 if [[ $branch =~ ^(feature|issue).* ]]; then
     echo Rebasing branch using $masterBranch
 	git rebase -i $masterBranch		
@@ -67,41 +102,19 @@ fi
 git checkout $masterBranch
 
 if [[ $branch =~ ^feature.* ]]; then	
-	git push origin $branch
-	originUrl=$(git config --get remote.origin.url)
-	
-	vsoRegex=".visualstudio.com"
-	if [[ "$originUrl" =~ $vsoRegex ]] ; then
-	   originUrl="$originUrl/pullrequestcreate?targetRef=master&sourceRef=$branch"
-	fi	
-
-	case $( uname -s ) in
-	  Darwin)  open='open';;
-	  MINGW*)  open='start';;
-	  MSYS*)   open='start';;
-	  CYGWIN*) open='cygstart';;
-	  *)       open='xdg-open';;
-	esac
-
-	# Allow printing the url if BROWSER=echo
-	if [[ $BROWSER != "echo" ]]; then
-	  exec &>/dev/null
-	fi
-
-
-	# open it in a browser
-	${BROWSER:-$open} "$originUrl"
-	
-        cleanup_localbranch $branch
-	exit 0;
+	echo "Do you wish to: "
+	select opt in "Merge to $masterBranch" "Create a pull request"; do
+		case $opt in
+			"Merge to $masterBranch" ) mergetomaster $masterBranch $branch; break;;
+			"Create a pull request" ) create_pullrequest $branch; exit 0; break;;
+		esac
+	done
 elif [[ $branch =~ ^issue.* ]]; then
 	echo "Merging to $masterBranch"
 	git merge --no-ff $branch -m "Resolving issue #shortBranch"
 	git push origin $masterBranch
 else
-	echo "Merging to $masterBranch"
-	git merge $branch
-	git push --follow-tags origin $masterBranch
+	mergetomaster $masterBranch $branch
 fi
 
 cleanup_localbranch $branch
