@@ -84,6 +84,9 @@ git push --follow-tags origin $1
 }
 
 if [[ $branch =~ ^(feature|issue).* ]]; then
+    echo Pulling latest $masterBranch from origin
+	git pull origin $masterBranch:$masterBranch
+	
     echo Rebasing branch using $masterBranch
 	git rebase -i $masterBranch		
 elif [[ $branch =~ ^(release|hotfix).* ]]; then
