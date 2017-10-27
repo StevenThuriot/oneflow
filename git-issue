@@ -23,5 +23,5 @@ if [[ "$1" =~ $numericRegex ]] ; then
 	echo Starting issue $1
 	git checkout -b issue/$1 $masterBranch
 else
-	echo "Error, issue names have to be numeric (e.g. the work item id related to them)"
+	echo "Issue names have to be numeric (e.g. the work item id related to them)"
 fi
