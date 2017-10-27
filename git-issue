@@ -6,9 +6,8 @@ masterBranch="master"
 
 if [[ "$1" = "--h" ]] ; then
    echo "Creates an issue branch at the latest commit on $masterBranch and checks it out.";
-   echo "Unlike feature branches, issue branches will directly be merged into $masterBranch finished."
+   echo "Unlike feature branches, issue branches will directly be merged into $masterBranch when finished."
    echo "  - git issue <workitem id>";
-   echo "Work item id is optional"
    exit 1;
 fi
 
@@ -24,6 +23,5 @@ if [[ "$1" =~ $numericRegex ]] ; then
 	echo Starting issue $1
 	git checkout -b issue/$1 $masterBranch
 else
-	echo Starting issue $1
-	git checkout -b issue/$1/$2 $masterBranch
+	echo "Error, issue names have to be numeric (e.g. the work item id related to them)"
 fi
