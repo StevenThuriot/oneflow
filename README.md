@@ -27,6 +27,7 @@ Add these to a folder that is included in your path variable. You can then call 
  $ git open
  
  $ git oneflow-update
+ $ git-oneflow-version
  
  $ git update-sub
 ```
