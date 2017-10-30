@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [[ "$1" = "--h" ]] ; then
+   echo "Prints the current oneflow toolset version: ";
+   echo "  - git oneflow-version";
+   echo ""
+   exit 1;
+fi
+
+echo "V1.0"
