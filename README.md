@@ -8,15 +8,15 @@ Add these to a folder that is included in your path variable. You can then call 
 
 - Starting a workflow
 ```sh
- $ git feature
- $ git issue
- $ git release
- $ git hotfix
+ $ git feature <name>
+ $ git issue <id>
+ $ git release  <version> [startingPoint]
+ $ git hotfix <version> [tag]
  ```
  
  - Ending that workflow
  ```sh
- $ git finish
+ $ git finish [annotation]
  ```
  
  - Useful tooling during said workflow
@@ -37,5 +37,8 @@ You can pass `--h` for a short readme, as follows:
 ```sh
 $ git bugfix --h
 ```
+
+_( Where <> is required, [] is optional )_
+
 
 And yes, I do realize it's ironic he makes a note in his blogpost that he doesn't like tooling for flows like these.. :-)
